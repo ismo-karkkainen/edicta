@@ -10,20 +10,25 @@ example: mapping
 
 All YAML blocks are expected to be mappings. Anything else recognized as YAML is treated as text.
 
+```
 ---
 - These items will not be considered.
+- YAML inside code block is not interpreted so looks better.
 - Even if there is a dictionary inside the list.
 - You: see?
 ...
+```
 
 Any tags or anything allowed outside --- and ... in normal YAML file will not have any effect. Hence versions are not recognized, for example. The intention is to store relatively simple values.
 
+```
 ---
 key0: value0
 key1: value1
 ---
 following: block
 ...
+```
 
 # Examples
 
