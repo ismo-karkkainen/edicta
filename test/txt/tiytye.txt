@@ -1,0 +1,9 @@
+text0
+---
+- not a dictionary
+...
+text1
+---
+key0.0: value0.0
+key0.1: value0.1
+...

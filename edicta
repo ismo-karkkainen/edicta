@@ -1,0 +1,164 @@
+#!/usr/bin/env ruby
+
+# Copyright 2019 Ismo Kärkkäinen
+# Licensed under Universal Permissive License. See License.txt.
+
+require 'optparse'
+require 'yaml'
+require 'json'
+
+$FORMAT = 'JSON'
+$VALUES = false
+$DUPLICATE = true
+$SINGLES = false
+$VERBOSE = false
+$OUT = nil
+$IN = nil
+$TEXT = false
+
+ENV['POSIXLY_CORRECT'] = '1'
+parser = OptionParser.new do |opts|
+  opts.summary_indent = '  '
+  opts.summary_width = 26
+  opts.banner = "Usage: edicta [options] [keys...]"
+  opts.separator ""
+  opts.separator "Options:"
+  opts.on('-j', '--json', 'Output in JSON format.') { $FORMAT = 'JSON' }
+  opts.on('-y', '--yaml', 'Output in YAML format.') { $FORMAT = 'YAML' }
+  opts.on('-v', '--values', 'Output only values.') { $VALUES = true }
+  opts.on('-s', '--singles', 'Output each (key-)value (pair) separately.') do
+    $SINGLES = true
+  end
+  opts.on('-o', '--output FILENAME') { |f| $OUT = f }
+  opts.on('-i', '--input FILENAME') { |f| $IN = f }
+  opts.on('--ignore-duplicates', 'Ignore duplicate keys (error otherwise).') do
+    $DUPLICATE = false
+  end
+  opts.on('-t', '--text', 'Output text, not dictionaries.') { $TEXT = true }
+  opts.on('--verbose', 'Verbose output to stderr.') { $VERBOSE = true }
+  opts.on('-h', '--help', 'Print this help and exit.') do
+    STDOUT.puts opts
+    exit 0
+  end
+end
+parser.parse!
+
+def file(val, default, mode)
+  return default if val.nil?
+  begin
+    return File.open(val, mode)
+  rescue StandardError
+    STDERR.puts "Failed to open for #{mode}: #{val}"
+    exit 1
+  end
+end
+
+input = file($IN, STDIN, 'r')
+# Avoid creating file before we know all values were found.
+$output = $TEXT ? file($OUT, STDOUT, 'w') : nil
+
+# Values to look for and in which order.
+look_for = Hash.new(ARGV.length == 0)
+ARGV.each_index { |k| look_for[ARGV[k]] = k }
+
+def dict(lines, look_for, edicts, counter)
+  return false if lines.empty?
+  begin
+    STDERR.puts("Decoding #{counter - lines.length}-#{counter - 1}") if $VERBOSE
+    contents = YAML.load(lines.join)
+  rescue StandardError
+    STDERR.puts('Failed.') if $VERBOSE and not($TEXT)
+    return false
+  end
+  return false unless contents.is_a? Hash
+  return true if $TEXT # Result will go unused.
+  contents.each_pair do |k, v|
+    if look_for[k]
+      STDERR.puts("Found #{k}") if $VERBOSE
+      if $DUPLICATE and edicts.has_key? k
+        STDERR.puts "Duplicate key: #{k}"
+        exit 2
+      end
+      edicts[k] = v
+      if look_for.default and not(look_for.has_key? k)
+        look_for[k] = edicts.size # Retain order in which encountered.
+      end
+    end
+  end
+  return true
+end
+
+def check(lines, look_for, edicts, counter)
+  return if dict(lines, look_for, edicts, counter)
+  return unless $TEXT
+  lines.each { |line| $output.puts(line) }
+end
+
+edicts = Hash.new
+accumulated = []
+inside = false
+counter = 0
+while not((line = input.gets).nil?)
+  counter += 1
+  ended = false
+  docend = false
+  if line == '---' or line.start_with?('---') and line[3].strip.empty?
+    ended = inside
+    inside = true
+  elsif line.start_with? '...'
+    docend = true
+    ended = inside
+    inside = false
+  end
+  if ended
+    accumulated.push(line) if docend
+    check(accumulated, look_for, edicts, counter + (docend ? 1 : 0))
+    accumulated = []
+  end
+  if inside
+    accumulated.push(line)
+  else
+    $output.puts(line) if $TEXT and not(docend)
+  end
+end
+if inside
+  check(accumulated, look_for, edicts, counter + 1)
+end
+
+exit(0) if $TEXT
+
+not_found = false
+look_for.keys.each do |key|
+  next if edicts.has_key? key
+  STDERR.puts "Not found: #{key}"
+  not_found = true
+end
+exit(3) if not_found
+
+$output = file($OUT, STDOUT, 'w')
+
+if $VALUES or $SINGLES
+  order = []
+  edicts.each_pair { |k, v| order.push({ :key => k, :value => v }) }
+  order.sort! { |a, b| look_for[a[:key]] <=> look_for[b[:key]] }
+  order.each_index do |k|
+    item = order[k]
+    order[k] = $VALUES ? item[:value] : { item[:key] => item[:value] }
+    if $SINGLES
+      case $FORMAT
+      when 'JSON' then $output.puts order[k].to_json
+      when 'YAML' then $output.puts YAML.dump(order[k])
+      end
+    end
+  end
+  exit(0) if $SINGLES
+  case $FORMAT
+  when 'JSON' then $output.puts JSON.generate(order)
+  when 'YAML' then $output.puts YAML.dump(order)
+  end
+else
+  case $FORMAT
+  when 'JSON' then $output.puts JSON.generate(edicts)
+  when 'YAML' then $output.puts YAML.dump(edicts)
+  end
+end

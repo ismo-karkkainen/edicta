@@ -1,0 +1,12 @@
+text0
+---
+key0.0: value0.0
+key0.1: value0.1
+---
+key1: value1
+...
+text1
+---
+key2: value2
+...
+text2
