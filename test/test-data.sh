@@ -17,14 +17,14 @@ if [ "$1" = "$ED" ]; then
     shift
 fi
 
-trap cleanup 1 2 3 6 15
-
-CMDS=$(mktemp)
-
-function cleanup {
+cleanup () {
     rm -f $CMDS $$.out $$.err
     exit ${1:-0}
 }
+
+trap cleanup 1 2 3 6 15
+
+CMDS=$(mktemp)
 
 if [ $# -gt 1 ]; then
     for L in "$@"
