@@ -48,8 +48,13 @@ current_results = load_results(ARGV.last)
 
 def compare_arrays(exp, res)
   if exp.length != res.length
-    STDERR.puts "Expected length #{exp.length} != result length #{res.length}"
-    return false
+    # Check if only differences are lines with three dots.
+    exp.select! { |line| not line.start_with? '...' }
+    res.select! { |line| not line.start_with? '...' }
+    if exp.length != res.length
+      STDERR.puts "Expected length #{exp.length} != result length #{res.length}"
+      return false
+    end
   end
   exp.each_index do |k|
     if exp[k] != res[k]
