@@ -53,6 +53,6 @@ Output the text portion of this file to standard output:
 
 # License
 
-Copyright (C) 2019 Ismo Kärkkäinen
+Copyright (C) 2019, 2020 Ismo Kärkkäinen
 
 Licensed under Universal Permissive License. See License.txt.
