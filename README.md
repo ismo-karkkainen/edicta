@@ -50,6 +50,19 @@ Output all keys as YAML mapping:
 Output the text portion of this file to standard output:
     edicta --input README.md --text --output text.md
 
+# Testing and installing
+
+To run tests, run:
+
+    rake test
+
+To install, by default to /usr/local/bin, run:
+
+    sudo rake install
+
+Directory test/port contains scripts that are used to run tests on various
+operating systems. Each script is named after what uname returns on the OS
+in question. Essentially these install some packages and then run all tests.
 
 # License
 
