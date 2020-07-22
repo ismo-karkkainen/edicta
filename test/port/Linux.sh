@@ -1,6 +1,18 @@
 #!/bin/sh
 
-sudo yum update -y
-sudo amazon-linux-extras install ruby2.6 -y
+F="/etc/os-release"
+
+if [ ! -f $F ]; then
+    echo "No $F"
+    exit 1
+fi
+
+D=$(grep '^ID=' $F | sed 's/"/ /g' | sed 's/=/ /g' | sed 's/  / /g' | cut -d ' ' -f 2)
+
 cd $1
-rake test
+if [ ! -x test/port/$D.sh ]; then
+    echo "Not supported:"
+    cat /etc/os-release
+    exit 1
+fi
+test/port/$D
