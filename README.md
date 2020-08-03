@@ -8,21 +8,22 @@ information.
 Thus far this has been tested with markdown files. The YAML-blocks inside the
 file will probably hinder the use of the file when the intention is to
 transform it into another format. To drop the YAML-blocks, to the degree they
-can be recognized, use --text option.
+can be recognized by edicta, use --text option.
 
 ---
 example: mapping that has surroundings interpreted as markdown
 ...
 
 All YAML blocks are expected to be mappings. Anything else recognized as YAML
-is treated as text.
+is treated as text. A YAML block must start with --- and end with ... in order
+to be recognized.
 
 ```
 ---
 - YAML inside code block is not interpreted so looks better.
 - These items will not be considered.
 - Even if there is a dictionary inside the list.
-- You: see?
+- Like: this.
 ...
 ```
 
