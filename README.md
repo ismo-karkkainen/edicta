@@ -1,11 +1,10 @@
 # Edicta
 
 Reads information from YAML-blocks inside a text file. The intent is that
-information can be stored inside human-readable file, and also used to obtain
-the said values automatically without need for human to copy-paste the
-information.
+information can be stored inside a human-readable file, and obtained
+automatically without any need for a human to copy-paste the information.
 
-Thus far this has been tested with markdown files. The YAML-blocks inside the
+This has been tested only with markdown files. The YAML-blocks inside the
 file will probably hinder the use of the file when the intention is to
 transform it into another format. To drop the YAML-blocks, to the degree they
 can be recognized by edicta, use --text option.
@@ -20,10 +19,9 @@ to be recognized.
 
 ```
 ---
-- YAML inside code block is not interpreted so looks better.
+- YAML inside code block is not interpreted by e.g. Jekyll so looks better.
 - These items will not be considered.
-- Even if there is a dictionary inside the list.
-- Like: this.
+- Even: if there is a mapping inside the list.
 ...
 ```
 
