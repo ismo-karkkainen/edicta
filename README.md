@@ -4,23 +4,19 @@ Reads information from YAML-blocks inside a text file. The intent is that
 information can be stored inside a human-readable file, and obtained
 automatically without any need for a human to copy-paste the information.
 
-This has been tested only with markdown files. The YAML-blocks inside the
-file will probably hinder the use of the file when the intention is to
-transform it into another format. To drop the YAML-blocks, to the degree they
-can be recognized by edicta, use --text option.
-
----
-example: mapping that has surroundings interpreted as markdown
-...
-
 All YAML blocks are expected to be mappings. Anything else recognized as YAML
 is treated as text. A YAML block must start with --- and end with ... in order
 to be recognized.
 
 ```
 ---
+key0: value0
+key1: value1
+---
+following: block
+---
 - YAML inside code block is not interpreted by e.g. Jekyll so looks better.
-- These items will not be considered.
+- These items will be ignored.
 - Even: if there is a mapping inside the list.
 ...
 ```
@@ -29,14 +25,10 @@ Any tags or anything allowed outside --- and ... in normal YAML file will not
 have any effect. Hence versions are not recognized, for example. The intention
 is to store relatively simple values.
 
-```
----
-key0: value0
-key1: value1
----
-following: block
-...
-```
+This has been tested only with markdown files. The YAML-blocks inside the
+file will probably hinder the use of the file when the intention is to
+transform it into another format. To drop the YAML-blocks, to the degree they
+can be recognized by edicta, use --text option.
 
 # Examples
 
@@ -65,6 +57,6 @@ in question. Essentially these install some packages and then run all tests.
 
 # License
 
-Copyright (C) 2019, 2020 Ismo Kärkkäinen
+Copyright © 2019-2021 Ismo Kärkkäinen
 
 Licensed under Universal Permissive License. See License.txt.
