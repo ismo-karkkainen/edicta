@@ -1,14 +1,17 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
-if ARGV.length != 2
-  STDERR.puts "Usage: compare expected current"
-  exit 1
+def aargh(message, exit_code = nil)
+  $stderr.puts message
+  exit exit_code unless exit_code.nil?
 end
+
+aargh('Usage: compare expected current', 1) if ARGV.length != 2
 
 def load_results(filename)
   f = File.new(filename, 'r', chomp: true)
-  all = Hash.new
-  result = Hash.new
+  all = {}
+  result = {}
   block = []
   f.readlines.each do |line|
     unless line.start_with? '####'
@@ -16,17 +19,16 @@ def load_results(filename)
       next
     end
     if line.start_with? '####COMMAND'
-      if result.has_key? :command
+      if result.key? :command
         all[result[:command]] = result
-        result = Hash.new
+        result = {}
       end
       result[:command] = line.split(' ', 2).last
     elsif line.start_with? '####CODE'
       begin
         result[:code] = Integer(line.split(' ', 2).last)
       rescue ArgumentError => e
-        STDERR.puts e.to_s
-        exit 2
+        aargh e.to_s, 2
       end
     elsif line.start_with? '####OUT'
       block = []
@@ -35,13 +37,12 @@ def load_results(filename)
       block = []
       result[:err] = block
     else
-      STDERR.puts "Unknown line: #{line}"
-      exit 3
+      aargh "Unknown line: #{line}", 3
     end
   end
-  all[result[:command]] = result if result.has_key? :command
+  all[result[:command]] = result if result.key? :command
   f.close
-  return all
+  all
 end
 
 expected_results = load_results(ARGV.first)
@@ -50,47 +51,47 @@ current_results = load_results(ARGV.last)
 def compare_arrays(exp, res)
   if exp.length != res.length
     # Check if only differences are lines with three dots.
-    exp.select! { |line| not line.start_with? '...' }
-    res.select! { |line| not line.start_with? '...' }
+    exp.reject! { |line| line.start_with? '...' }
+    res.reject! { |line| line.start_with? '...' }
     if exp.length != res.length
-      STDERR.puts "Expected length #{exp.length} != result length #{res.length}"
+      aargh "Expected length #{exp.length} != result length #{res.length}"
       return false
     end
   end
   exp.each_index do |k|
     if exp[k] != res[k]
-      STDERR.puts "Mismatch in line #{k + 1}"
+      aargh "Mismatch in line #{k + 1}"
       return false
     end
   end
-  return true
+  true
 end
 
 def compare_results(expected, current, command)
   if expected.fetch(:code, nil) != current.fetch(:code, nil)
-    STDERR.puts "Inequal return codes: #{command}"
+    aargh "Inequal return codes: #{command}"
     return false
   end
   exp = expected.fetch(:out, [])
   res = current.fetch(:out, [])
   unless compare_arrays(exp, res)
-    STDERR.puts "Different stdout contents: #{command}"
+    aargh "Different stdout contents: #{command}"
     return false
   end
   exp = expected.fetch(:err, [])
   res = current.fetch(:err, [])
   unless compare_arrays(exp, res)
-    STDERR.puts "Different stderr contents: #{command}"
+    aargh "Different stderr contents: #{command}"
     return false
   end
-  return true
+  true
 end
 
 exitcode = 0
 current_results.each_pair do |command, current|
   expected = expected_results.delete command
   if expected.nil?
-    STDERR.puts "Missing from expected: #{command}"
+    aargh "Missing from expected: #{command}"
     next
   end
   exitcode = 1 unless compare_results(expected, current, command)
@@ -98,8 +99,8 @@ end
 
 # Missing results from current.
 unless expected_results.empty?
-  STDERR.puts "Missing from current results:"
-  expected_results.keys.sort.each { |cmd| STDERR.puts cmd }
+  aargh 'Missing from current results:'
+  expected_results.keys.sort.each { |cmd| aargh cmd }
   exitcode = 1
 end
 exit exitcode

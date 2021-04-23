@@ -1,4 +1,6 @@
-task :default => [ :install ]
+# frozen_string_literal: true
+
+task default: [:install]
 
 desc 'Install.'
 task :install do
@@ -6,9 +8,9 @@ task :install do
   target = File.join(prefix, 'bin')
   puts "Using PREFIX #{prefix} to install to #{target}."
   abort("Target #{target} is not a directory.") unless File.directory? target
-  [ 'edicta' ].each do |exe|
+  ['edicta'].each do |exe|
     puts "Installing #{exe}."
-    %x(sudo install #{exe} #{prefix}/bin/)
+    `sudo install #{exe} #{prefix}/bin/`
   end
 end
 

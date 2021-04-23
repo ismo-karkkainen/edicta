@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 # Copyright 2019 Ismo Kärkkäinen
 # Licensed under Universal Permissive License. See License.txt.
@@ -20,9 +21,9 @@ ENV['POSIXLY_CORRECT'] = '1'
 parser = OptionParser.new do |opts|
   opts.summary_indent = '  '
   opts.summary_width = 26
-  opts.banner = "Usage: edicta [options] [keys...]"
-  opts.separator ""
-  opts.separator "Options:"
+  opts.banner = 'Usage: edicta [options] [keys...]'
+  opts.separator ''
+  opts.separator 'Options:'
   opts.on('-j', '--json', 'Output in JSON format.') { $FORMAT = 'JSON' }
   opts.on('-y', '--yaml', 'Output in YAML format.') { $FORMAT = 'YAML' }
   opts.on('-v', '--values', 'Output only values.') { $VALUES = true }
@@ -37,55 +38,52 @@ parser = OptionParser.new do |opts|
   opts.on('-t', '--text', 'Output text, not dictionaries.') { $TEXT = true }
   opts.on('--verbose', 'Verbose output to stderr.') { $VERBOSE = true }
   opts.on('-h', '--help', 'Print this help and exit.') do
-    STDOUT.puts opts
+    $stdout.puts opts
     exit 0
   end
 end
 parser.parse!
 
-def file(val, default, mode)
-  return default if val.nil?
-  begin
-    return File.open(val, mode)
-  rescue StandardError
-    STDERR.puts "Failed to open for #{mode}: #{val}"
-    exit 1
-  end
+def aargh(message, exit_code = nil)
+  $stderr.puts message
+  exit exit_code unless exit_code.nil?
 end
 
-input = file($IN, STDIN, 'r')
+def file(val, default, mode)
+  val.nil? ? default : File.open(val, mode)
+rescue StandardError
+  aargh "Failed to open for #{mode}: #{val}", 1
+end
+
+input = file($IN, $stdin, 'r')
 # Avoid creating file before we know all values were found.
-$output = $TEXT ? file($OUT, STDOUT, 'w') : nil
+$output = $TEXT ? file($OUT, $stdout, 'w') : nil
 
 # Values to look for and in which order.
-look_for = Hash.new(ARGV.length == 0)
+look_for = Hash.new(ARGV.empty?)
 ARGV.each_index { |k| look_for[ARGV[k]] = k }
 
 def dict(lines, look_for, edicts, counter)
   return false if lines.empty?
   begin
-    STDERR.puts("Decoding #{counter - lines.length}-#{counter - 1}") if $VERBOSE
-    contents = YAML.load(lines.join)
+    aargh("Decoding #{counter - lines.length}-#{counter - 1}") if $VERBOSE
+    contents = YAML.safe_load(lines.join)
   rescue StandardError
-    STDERR.puts('Failed.') if $VERBOSE and not($TEXT)
+    aargh('Failed.') if $VERBOSE && !$TEXT
     return false
   end
   return false unless contents.is_a? Hash
   return true if $TEXT # Result will go unused.
   contents.each_pair do |k, v|
-    if look_for[k]
-      STDERR.puts("Found #{k}") if $VERBOSE
-      if $DUPLICATE and edicts.has_key? k
-        STDERR.puts "Duplicate key: #{k}"
-        exit 2
-      end
-      edicts[k] = v
-      if look_for.default and not(look_for.has_key? k)
-        look_for[k] = edicts.size # Retain order in which encountered.
-      end
+    next unless look_for[k]
+    aargh("Found #{k}") if $VERBOSE
+    aargh("Duplicate key: #{k}", 2) if $DUPLICATE && edicts.key?(k)
+    edicts[k] = v
+    if look_for.default && !look_for.key?(k)
+      look_for[k] = edicts.size # Retain order in which encountered.
     end
   end
-  return true
+  true
 end
 
 def check(lines, look_for, edicts, counter)
@@ -94,15 +92,15 @@ def check(lines, look_for, edicts, counter)
   lines.each { |line| $output.puts(line) }
 end
 
-edicts = Hash.new
+edicts = {}
 accumulated = []
 inside = false
 counter = 0
-while not((line = input.gets).nil?)
+until (line = input.gets).nil?
   counter += 1
   ended = false
   docend = false
-  if line == '---' or line.start_with?('---') and line[3].strip.empty?
+  if line == '---' || line.start_with?('---') && line[3].strip.empty?
     ended = inside
     inside = true
   elsif line.start_with? '...'
@@ -118,37 +116,34 @@ while not((line = input.gets).nil?)
   if inside
     accumulated.push(line)
   else
-    $output.puts(line) if $TEXT and not(docend)
+    $output.puts(line) if $TEXT && !docend
   end
 end
-if inside
-  check(accumulated, look_for, edicts, counter + 1)
-end
+check(accumulated, look_for, edicts, counter + 1) if inside
 
 exit(0) if $TEXT
 
 not_found = false
-look_for.keys.each do |key|
-  next if edicts.has_key? key
-  STDERR.puts "Not found: #{key}"
+look_for.each_key do |key|
+  next if edicts.key? key
+  aargh "Not found: #{key}"
   not_found = true
 end
 exit(3) if not_found
 
-$output = file($OUT, STDOUT, 'w')
+$output = file($OUT, $stdout, 'w')
 
-if $VALUES or $SINGLES
+if $VALUES || $SINGLES
   order = []
-  edicts.each_pair { |k, v| order.push({ :key => k, :value => v }) }
+  edicts.each_pair { |k, v| order.push({ key: k, value: v }) }
   order.sort! { |a, b| look_for[a[:key]] <=> look_for[b[:key]] }
   order.each_index do |k|
     item = order[k]
     order[k] = $VALUES ? item[:value] : { item[:key] => item[:value] }
-    if $SINGLES
-      case $FORMAT
-      when 'JSON' then $output.puts order[k].to_json
-      when 'YAML' then $output.puts YAML.dump(order[k])
-      end
+    next unless $SINGLES
+    case $FORMAT
+    when 'JSON' then $output.puts order[k].to_json
+    when 'YAML' then $output.puts YAML.dump(order[k])
     end
   end
   exit(0) if $SINGLES
