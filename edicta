@@ -1,42 +1,65 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Copyright 2019 Ismo Kärkkäinen
+# Copyright © 2019-2021 Ismo Kärkkäinen
 # Licensed under Universal Permissive License. See License.txt.
 
 require 'optparse'
 require 'yaml'
 require 'json'
 
-$FORMAT = 'JSON'
-$VALUES = false
-$DUPLICATE = true
-$SINGLES = false
-$VERBOSE = false
-$OUT = nil
-$IN = nil
-$TEXT = false
+
+def aargh(message, exit_code = nil)
+  $stderr.puts message
+  exit exit_code unless exit_code.nil?
+end
+
+def env(var, value = nil)
+  k = var.to_s.upcase
+  ENV[k] = { false => '0', true => '1' }.fetch(value, value) unless value.nil?
+  v = ENV.fetch(k, nil)
+  case v
+  when '0' then false
+  when '1' then true
+  else
+    v
+  end
+end
+
+def default_env(var, value)
+  v = env(var)
+  env(var, value) if v.nil?
+end
+
+default_env(:format, 'JSON')
+default_env(:values, false)
+default_env(:duplicate, true)
+default_env(:singles, false)
+default_env(:verbose, false)
+default_env(:text, false)
+default_env(:in, '')
+default_env(:out, '')
 
 ENV['POSIXLY_CORRECT'] = '1'
 parser = OptionParser.new do |opts|
   opts.summary_indent = '  '
-  opts.summary_width = 26
+  opts.summary_width = 23
   opts.banner = 'Usage: edicta [options] [keys...]'
   opts.separator ''
-  opts.separator 'Options:'
-  opts.on('-j', '--json', 'Output in JSON format.') { $FORMAT = 'JSON' }
-  opts.on('-y', '--yaml', 'Output in YAML format.') { $FORMAT = 'YAML' }
-  opts.on('-v', '--values', 'Output only values.') { $VALUES = true }
-  opts.on('-s', '--singles', 'Output each (key-)value (pair) separately.') do
-    $SINGLES = true
+  opts.separator 'Options (equivalent environment variable and value in parentheses):'
+  opts.on('-j', '--json', 'Output in JSON format (FORMAT=JSON).') { env(:format, 'JSON') }
+  opts.on('-y', '--yaml', 'Output in YAML format (FORMAT=YAML).') { env(:format, 'YAML') }
+  opts.on('-v', '--values', 'Output only values (VALUES=1).') { env(:values, true) }
+  opts.on('-s', '--singles', 'Output each (key-)value (pair) separately (SINGLES=1).') do
+    env(:singles, true)
   end
-  opts.on('-o', '--output FILENAME') { |f| $OUT = f }
-  opts.on('-i', '--input FILENAME') { |f| $IN = f }
-  opts.on('--ignore-duplicates', 'Ignore duplicate keys (error otherwise).') do
-    $DUPLICATE = false
+  opts.on('-o', '--output FILENAME', '(OUT=FILENAME)') { |f| env(:out, f) }
+  opts.on('-i', '--input FILENAME', '(IN=FILENAME)') { |f| env(:in, f) }
+  opts.on('--ignore-duplicates', 'Ignore duplicate keys (error otherwise, DUPLICATE=0).') do
+    env(:duplicate, false)
   end
-  opts.on('-t', '--text', 'Output text, not dictionaries.') { $TEXT = true }
-  opts.on('--verbose', 'Verbose output to stderr.') { $VERBOSE = true }
+  opts.on('-t', '--text', 'Output text, not dictionaries (TEXT=1).') { env(:text, true) }
+  opts.on('--verbose', 'Verbose output to stderr (VERBOSE=1).') { env(:verbose, true) }
   opts.on('-h', '--help', 'Print this help and exit.') do
     $stdout.puts opts
     exit 0
@@ -44,20 +67,17 @@ parser = OptionParser.new do |opts|
 end
 parser.parse!
 
-def aargh(message, exit_code = nil)
-  $stderr.puts message
-  exit exit_code unless exit_code.nil?
-end
+aargh("Format neither JSON nor YAML: #{env(:format)}", 1) unless %w[JSON YAML].include? env(:format)
 
 def file(val, default, mode)
-  val.nil? ? default : File.open(val, mode)
+  val.empty? ? default : File.open(val, mode)
 rescue StandardError
   aargh "Failed to open for #{mode}: #{val}", 1
 end
 
-input = file($IN, $stdin, 'r')
+input = file(env(:in), $stdin, 'r')
 # Avoid creating file before we know all values were found.
-$output = $TEXT ? file($OUT, $stdout, 'w') : nil
+output = env(:text) ? file(env(:out), $stdout, 'w') : nil
 
 # Values to look for and in which order.
 look_for = Hash.new(ARGV.empty?)
@@ -66,18 +86,18 @@ ARGV.each_index { |k| look_for[ARGV[k]] = k }
 def dict(lines, look_for, edicts, counter)
   return false if lines.empty?
   begin
-    aargh("Decoding #{counter - lines.length}-#{counter - 1}") if $VERBOSE
+    aargh("Decoding #{counter - lines.length}-#{counter - 1}") if env(:verbose)
     contents = YAML.safe_load(lines.join)
   rescue StandardError
-    aargh('Failed.') if $VERBOSE && !$TEXT
+    aargh('Failed.') if env(:verbose) && !env(:text)
     return false
   end
   return false unless contents.is_a? Hash
-  return true if $TEXT # Result will go unused.
+  return true if env(:text) # Result will go unused.
   contents.each_pair do |k, v|
     next unless look_for[k]
-    aargh("Found #{k}") if $VERBOSE
-    aargh("Duplicate key: #{k}", 2) if $DUPLICATE && edicts.key?(k)
+    aargh("Found #{k}") if env(:verbose)
+    aargh("Duplicate key: #{k}", 2) if env(:duplicate) && edicts.key?(k)
     edicts[k] = v
     if look_for.default && !look_for.key?(k)
       look_for[k] = edicts.size # Retain order in which encountered.
@@ -86,10 +106,10 @@ def dict(lines, look_for, edicts, counter)
   true
 end
 
-def check(lines, look_for, edicts, counter)
+def check(lines, look_for, edicts, counter, output)
   return if dict(lines, look_for, edicts, counter)
-  return unless $TEXT
-  lines.each { |line| $output.puts(line) }
+  return unless env(:text)
+  lines.each { |line| output.puts(line) }
 end
 
 edicts = {}
@@ -110,18 +130,18 @@ until (line = input.gets).nil?
   end
   if ended
     accumulated.push(line) if docend
-    check(accumulated, look_for, edicts, counter + (docend ? 1 : 0))
+    check(accumulated, look_for, edicts, counter + (docend ? 1 : 0), output)
     accumulated = []
   end
   if inside
     accumulated.push(line)
-  else
-    $output.puts(line) if $TEXT && !docend
+  elsif env(:text) && !docend
+    output.puts(line)
   end
 end
-check(accumulated, look_for, edicts, counter + 1) if inside
+check(accumulated, look_for, edicts, counter + 1, output) if inside
 
-exit(0) if $TEXT
+exit(0) if env(:text)
 
 not_found = false
 look_for.each_key do |key|
@@ -131,29 +151,29 @@ look_for.each_key do |key|
 end
 exit(3) if not_found
 
-$output = file($OUT, $stdout, 'w')
+output = file(env(:out), $stdout, 'w')
 
-if $VALUES || $SINGLES
+if env(:values) || env(:singles)
   order = []
   edicts.each_pair { |k, v| order.push({ key: k, value: v }) }
   order.sort! { |a, b| look_for[a[:key]] <=> look_for[b[:key]] }
   order.each_index do |k|
     item = order[k]
-    order[k] = $VALUES ? item[:value] : { item[:key] => item[:value] }
-    next unless $SINGLES
-    case $FORMAT
-    when 'JSON' then $output.puts order[k].to_json
-    when 'YAML' then $output.puts YAML.dump(order[k])
+    order[k] = env(:values) ? item[:value] : { item[:key] => item[:value] }
+    next unless env(:singles)
+    case env(:format)
+    when 'JSON' then output.puts order[k].to_json
+    when 'YAML' then output.puts YAML.dump(order[k])
     end
   end
-  exit(0) if $SINGLES
-  case $FORMAT
-  when 'JSON' then $output.puts JSON.generate(order)
-  when 'YAML' then $output.puts YAML.dump(order)
+  exit(0) if env(:singles)
+  case env(:format)
+  when 'JSON' then output.puts JSON.generate(order)
+  when 'YAML' then output.puts YAML.dump(order)
   end
 else
-  case $FORMAT
-  when 'JSON' then $output.puts JSON.generate(edicts)
-  when 'YAML' then $output.puts YAML.dump(edicts)
+  case env(:format)
+  when 'JSON' then output.puts JSON.generate(edicts)
+  when 'YAML' then output.puts YAML.dump(edicts)
   end
 end

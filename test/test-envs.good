@@ -1,0 +1,361 @@
+####COMMAND FORMAT=JSON SINGLES=0 VALUES=0 VERBOSE=1 IN=txt/t.txt edicta
+####CODE 0
+####OUT
+{}
+####ERR
+####COMMAND FORMAT=JSON SINGLES=0 VALUES=0 VERBOSE=1 IN=txt/t.txt edicta missing
+####CODE 3
+####OUT
+####ERR
+Not found: missing
+####COMMAND FORMAT=JSON SINGLES=0 VALUES=0 VERBOSE=1 IN=txt/tiytye.txt edicta
+####CODE 0
+####OUT
+{"key0.0":"value0.0","key0.1":"value0.1"}
+####ERR
+Decoding 2-4
+Decoding 6-9
+Found key0.0
+Found key0.1
+####COMMAND FORMAT=JSON SINGLES=0 VALUES=0 VERBOSE=1 IN=txt/tyyd.txt DUPLICATE=0 edicta key0
+####CODE 0
+####OUT
+{"key0":"value0.1"}
+####ERR
+Decoding 2-3
+Found key0
+Decoding 4-5
+Found key0
+####COMMAND FORMAT=JSON SINGLES=0 VALUES=0 VERBOSE=1 IN=txt/tyyd.txt DUPLICATE=1 edicta key0
+####CODE 2
+####OUT
+####ERR
+Decoding 2-3
+Found key0
+Decoding 4-5
+Found key0
+Duplicate key: key0
+####COMMAND FORMAT=JSON SINGLES=0 VALUES=0 VERBOSE=1 IN=txt/tyyd.txt TEXT=1 DUPLICATE=0 edicta
+####CODE 0
+####OUT
+text0
+####ERR
+Decoding 2-3
+Decoding 4-5
+####COMMAND FORMAT=JSON SINGLES=0 VALUES=1 VERBOSE=1 IN=txt/t.txt edicta
+####CODE 0
+####OUT
+[]
+####ERR
+####COMMAND FORMAT=JSON SINGLES=0 VALUES=1 VERBOSE=1 IN=txt/t.txt edicta missing
+####CODE 3
+####OUT
+####ERR
+Not found: missing
+####COMMAND FORMAT=JSON SINGLES=0 VALUES=1 VERBOSE=1 IN=txt/tiytye.txt edicta
+####CODE 0
+####OUT
+["value0.0","value0.1"]
+####ERR
+Decoding 2-4
+Decoding 6-9
+Found key0.0
+Found key0.1
+####COMMAND FORMAT=JSON SINGLES=0 VALUES=1 VERBOSE=1 IN=txt/tyyd.txt DUPLICATE=0 edicta key0
+####CODE 0
+####OUT
+["value0.1"]
+####ERR
+Decoding 2-3
+Found key0
+Decoding 4-5
+Found key0
+####COMMAND FORMAT=JSON SINGLES=0 VALUES=1 VERBOSE=1 IN=txt/tyyd.txt DUPLICATE=1 edicta key0
+####CODE 2
+####OUT
+####ERR
+Decoding 2-3
+Found key0
+Decoding 4-5
+Found key0
+Duplicate key: key0
+####COMMAND FORMAT=JSON SINGLES=0 VALUES=1 VERBOSE=1 IN=txt/tyyd.txt TEXT=1 DUPLICATE=0 edicta
+####CODE 0
+####OUT
+text0
+####ERR
+Decoding 2-3
+Decoding 4-5
+####COMMAND FORMAT=JSON SINGLES=1 VALUES=0 VERBOSE=1 IN=txt/t.txt edicta
+####CODE 0
+####OUT
+####ERR
+####COMMAND FORMAT=JSON SINGLES=1 VALUES=0 VERBOSE=1 IN=txt/t.txt edicta missing
+####CODE 3
+####OUT
+####ERR
+Not found: missing
+####COMMAND FORMAT=JSON SINGLES=1 VALUES=0 VERBOSE=1 IN=txt/tiytye.txt edicta
+####CODE 0
+####OUT
+{"key0.0":"value0.0"}
+{"key0.1":"value0.1"}
+####ERR
+Decoding 2-4
+Decoding 6-9
+Found key0.0
+Found key0.1
+####COMMAND FORMAT=JSON SINGLES=1 VALUES=0 VERBOSE=1 IN=txt/tyyd.txt DUPLICATE=0 edicta key0
+####CODE 0
+####OUT
+{"key0":"value0.1"}
+####ERR
+Decoding 2-3
+Found key0
+Decoding 4-5
+Found key0
+####COMMAND FORMAT=JSON SINGLES=1 VALUES=0 VERBOSE=1 IN=txt/tyyd.txt DUPLICATE=1 edicta key0
+####CODE 2
+####OUT
+####ERR
+Decoding 2-3
+Found key0
+Decoding 4-5
+Found key0
+Duplicate key: key0
+####COMMAND FORMAT=JSON SINGLES=1 VALUES=0 VERBOSE=1 IN=txt/tyyd.txt TEXT=1 DUPLICATE=0 edicta
+####CODE 0
+####OUT
+text0
+####ERR
+Decoding 2-3
+Decoding 4-5
+####COMMAND FORMAT=JSON SINGLES=1 VALUES=1 VERBOSE=1 IN=txt/t.txt edicta
+####CODE 0
+####OUT
+####ERR
+####COMMAND FORMAT=JSON SINGLES=1 VALUES=1 VERBOSE=1 IN=txt/t.txt edicta missing
+####CODE 3
+####OUT
+####ERR
+Not found: missing
+####COMMAND FORMAT=JSON SINGLES=1 VALUES=1 VERBOSE=1 IN=txt/tiytye.txt edicta
+####CODE 0
+####OUT
+"value0.0"
+"value0.1"
+####ERR
+Decoding 2-4
+Decoding 6-9
+Found key0.0
+Found key0.1
+####COMMAND FORMAT=JSON SINGLES=1 VALUES=1 VERBOSE=1 IN=txt/tyyd.txt DUPLICATE=0 edicta key0
+####CODE 0
+####OUT
+"value0.1"
+####ERR
+Decoding 2-3
+Found key0
+Decoding 4-5
+Found key0
+####COMMAND FORMAT=JSON SINGLES=1 VALUES=1 VERBOSE=1 IN=txt/tyyd.txt DUPLICATE=1 edicta key0
+####CODE 2
+####OUT
+####ERR
+Decoding 2-3
+Found key0
+Decoding 4-5
+Found key0
+Duplicate key: key0
+####COMMAND FORMAT=JSON SINGLES=1 VALUES=1 VERBOSE=1 IN=txt/tyyd.txt TEXT=1 DUPLICATE=0 edicta
+####CODE 0
+####OUT
+text0
+####ERR
+Decoding 2-3
+Decoding 4-5
+####COMMAND FORMAT=YAML SINGLES=0 VALUES=0 VERBOSE=1 IN=txt/t.txt edicta
+####CODE 0
+####OUT
+--- {}
+####ERR
+####COMMAND FORMAT=YAML SINGLES=0 VALUES=0 VERBOSE=1 IN=txt/t.txt edicta missing
+####CODE 3
+####OUT
+####ERR
+Not found: missing
+####COMMAND FORMAT=YAML SINGLES=0 VALUES=0 VERBOSE=1 IN=txt/tiytye.txt edicta
+####CODE 0
+####OUT
+---
+key0.0: value0.0
+key0.1: value0.1
+####ERR
+Decoding 2-4
+Decoding 6-9
+Found key0.0
+Found key0.1
+####COMMAND FORMAT=YAML SINGLES=0 VALUES=0 VERBOSE=1 IN=txt/tyyd.txt DUPLICATE=0 edicta key0
+####CODE 0
+####OUT
+---
+key0: value0.1
+####ERR
+Decoding 2-3
+Found key0
+Decoding 4-5
+Found key0
+####COMMAND FORMAT=YAML SINGLES=0 VALUES=0 VERBOSE=1 IN=txt/tyyd.txt DUPLICATE=1 edicta key0
+####CODE 2
+####OUT
+####ERR
+Decoding 2-3
+Found key0
+Decoding 4-5
+Found key0
+Duplicate key: key0
+####COMMAND FORMAT=YAML SINGLES=0 VALUES=0 VERBOSE=1 IN=txt/tyyd.txt TEXT=1 DUPLICATE=0 edicta
+####CODE 0
+####OUT
+text0
+####ERR
+Decoding 2-3
+Decoding 4-5
+####COMMAND FORMAT=YAML SINGLES=0 VALUES=1 VERBOSE=1 IN=txt/t.txt edicta
+####CODE 0
+####OUT
+--- []
+####ERR
+####COMMAND FORMAT=YAML SINGLES=0 VALUES=1 VERBOSE=1 IN=txt/t.txt edicta missing
+####CODE 3
+####OUT
+####ERR
+Not found: missing
+####COMMAND FORMAT=YAML SINGLES=0 VALUES=1 VERBOSE=1 IN=txt/tiytye.txt edicta
+####CODE 0
+####OUT
+---
+- value0.0
+- value0.1
+####ERR
+Decoding 2-4
+Decoding 6-9
+Found key0.0
+Found key0.1
+####COMMAND FORMAT=YAML SINGLES=0 VALUES=1 VERBOSE=1 IN=txt/tyyd.txt DUPLICATE=0 edicta key0
+####CODE 0
+####OUT
+---
+- value0.1
+####ERR
+Decoding 2-3
+Found key0
+Decoding 4-5
+Found key0
+####COMMAND FORMAT=YAML SINGLES=0 VALUES=1 VERBOSE=1 IN=txt/tyyd.txt DUPLICATE=1 edicta key0
+####CODE 2
+####OUT
+####ERR
+Decoding 2-3
+Found key0
+Decoding 4-5
+Found key0
+Duplicate key: key0
+####COMMAND FORMAT=YAML SINGLES=0 VALUES=1 VERBOSE=1 IN=txt/tyyd.txt TEXT=1 DUPLICATE=0 edicta
+####CODE 0
+####OUT
+text0
+####ERR
+Decoding 2-3
+Decoding 4-5
+####COMMAND FORMAT=YAML SINGLES=1 VALUES=0 VERBOSE=1 IN=txt/t.txt edicta
+####CODE 0
+####OUT
+####ERR
+####COMMAND FORMAT=YAML SINGLES=1 VALUES=0 VERBOSE=1 IN=txt/t.txt edicta missing
+####CODE 3
+####OUT
+####ERR
+Not found: missing
+####COMMAND FORMAT=YAML SINGLES=1 VALUES=0 VERBOSE=1 IN=txt/tiytye.txt edicta
+####CODE 0
+####OUT
+---
+key0.0: value0.0
+---
+key0.1: value0.1
+####ERR
+Decoding 2-4
+Decoding 6-9
+Found key0.0
+Found key0.1
+####COMMAND FORMAT=YAML SINGLES=1 VALUES=0 VERBOSE=1 IN=txt/tyyd.txt DUPLICATE=0 edicta key0
+####CODE 0
+####OUT
+---
+key0: value0.1
+####ERR
+Decoding 2-3
+Found key0
+Decoding 4-5
+Found key0
+####COMMAND FORMAT=YAML SINGLES=1 VALUES=0 VERBOSE=1 IN=txt/tyyd.txt DUPLICATE=1 edicta key0
+####CODE 2
+####OUT
+####ERR
+Decoding 2-3
+Found key0
+Decoding 4-5
+Found key0
+Duplicate key: key0
+####COMMAND FORMAT=YAML SINGLES=1 VALUES=0 VERBOSE=1 IN=txt/tyyd.txt TEXT=1 DUPLICATE=0 edicta
+####CODE 0
+####OUT
+text0
+####ERR
+Decoding 2-3
+Decoding 4-5
+####COMMAND FORMAT=YAML SINGLES=1 VALUES=1 VERBOSE=1 IN=txt/t.txt edicta
+####CODE 0
+####OUT
+####ERR
+####COMMAND FORMAT=YAML SINGLES=1 VALUES=1 VERBOSE=1 IN=txt/t.txt edicta missing
+####CODE 3
+####OUT
+####ERR
+Not found: missing
+####COMMAND FORMAT=YAML SINGLES=1 VALUES=1 VERBOSE=1 IN=txt/tiytye.txt edicta
+####CODE 0
+####OUT
+--- value0.0
+--- value0.1
+####ERR
+Decoding 2-4
+Decoding 6-9
+Found key0.0
+Found key0.1
+####COMMAND FORMAT=YAML SINGLES=1 VALUES=1 VERBOSE=1 IN=txt/tyyd.txt DUPLICATE=0 edicta key0
+####CODE 0
+####OUT
+--- value0.1
+####ERR
+Decoding 2-3
+Found key0
+Decoding 4-5
+Found key0
+####COMMAND FORMAT=YAML SINGLES=1 VALUES=1 VERBOSE=1 IN=txt/tyyd.txt DUPLICATE=1 edicta key0
+####CODE 2
+####OUT
+####ERR
+Decoding 2-3
+Found key0
+Decoding 4-5
+Found key0
+Duplicate key: key0
+####COMMAND FORMAT=YAML SINGLES=1 VALUES=1 VERBOSE=1 IN=txt/tyyd.txt TEXT=1 DUPLICATE=0 edicta
+####CODE 0
+####OUT
+text0
+####ERR
+Decoding 2-3
+Decoding 4-5
