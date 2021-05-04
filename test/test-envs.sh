@@ -57,11 +57,11 @@ rm -f $RESULTS
 cat $CMDS |
 while read C
 do
-    export C=$C
+    export D="$C"
     (
     B=
     F=
-    for P in $C
+    for P in $D
     do
         G=
         echo $P | grep -q 'edicta$'
