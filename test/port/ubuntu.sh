@@ -1,4 +1,4 @@
 #!/bin/sh
 
-sudo apt-get install -y -q ruby >/dev/null
+sudo apt-get install -y -q ruby rake >/dev/null
 rake test

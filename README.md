@@ -43,13 +43,11 @@ Output the text portion of this file to standard output:
 
 # Testing and installing
 
-To run tests, run:
+To run tests, build gem, and install, run:
 
     rake test
-
-To install, by default to /usr/local/bin, run:
-
-    sudo rake install
+    rake gem
+    rake install
 
 Directory test/port contains scripts that are used to run tests on various
 operating systems. Each script is named after what uname returns on the OS
