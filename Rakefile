@@ -2,16 +2,19 @@
 
 task default: [:install]
 
-desc 'Install.'
-task :install do
-  prefix = ENV.fetch('PREFIX', '/usr/local')
-  target = File.join(prefix, 'bin')
-  puts "Using PREFIX #{prefix} to install to #{target}."
-  abort("Target #{target} is not a directory.") unless File.directory? target
-  ['edicta'].each do |exe|
-    puts "Installing #{exe}."
-    `sudo install #{exe} #{prefix}/bin/`
-  end
+desc 'Clean.'
+task :clean do
+  `rm -f edicta-*.gem`
+end
+
+desc 'Build gem.'
+task gem: [:clean] do
+  `gem build edicta.gemspec`
+end
+
+desc 'Build and install gem.'
+task install: [:gem] do
+  `gem install edicta-*.gem`
 end
 
 desc 'Test.'

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ED=
-E="edicta"
+E="bin/edicta"
 for C in $(pwd)/$E $(pwd)/../$E $(pwd)/../../$E $1
 do
     if [ -x $C ]; then
