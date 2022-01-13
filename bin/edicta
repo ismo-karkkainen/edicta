@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Copyright © 2019-2021 Ismo Kärkkäinen
+# Copyright © 2019-2022 Ismo Kärkkäinen
 # Licensed under Universal Permissive License. See LICENSE.txt.
 
 require 'optparse'
@@ -120,7 +120,8 @@ until (line = input.gets).nil?
   counter += 1
   ended = false
   docend = false
-  if line == '---' || line.start_with?('---') && line[3].strip.empty?
+  # Line can be '--- something'.
+  if line == '---' || (line.start_with?('---') && line[3].strip.empty?)
     ended = inside
     inside = true
   elsif line.start_with? '...'

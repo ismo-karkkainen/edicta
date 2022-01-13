@@ -55,6 +55,6 @@ in question. Essentially these install some packages and then run all tests.
 
 # License
 
-Copyright © 2019-2021 Ismo Kärkkäinen
+Copyright © 2019-2022 Ismo Kärkkäinen
 
 Licensed under Universal Permissive License. See LICENSE.txt.
