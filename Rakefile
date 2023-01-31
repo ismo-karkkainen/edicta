@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rubocop/rake_task'
+
 task default: [:install]
 
 desc 'Clean.'
@@ -20,4 +22,9 @@ end
 desc 'Test.'
 task :test do
   sh './test.sh'
+end
+
+desc 'Lint using Rubocop'
+RuboCop::RakeTask.new(:lint) do |t|
+  t.patterns = [ 'bin', 'edicta.gemspec' ]
 end
